@@ -682,14 +682,15 @@ JS;
             }
         }
 
-        $value = strval($value);
+        # $value = strval($value);
 
-        if (in_array($elementName, array('input', 'textarea'))) {
-            $existingValueLength = strlen($element->attribute('value'));
-            $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
-        }
+        # if (in_array($elementName, array('input', 'textarea'))) {
+        #     $existingValueLength = strlen($element->attribute('value'));
+        #     $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
+        # }
 
-        $element->postValue(array('value' => array($value)));
+        # $element->postValue(array('value' => array($value)));
+        $this->postElementValue($value, $elementName, $element);
         // Remove the focus from the element if the field still has focus in
         // order to trigger the change event. By doing this instead of simply
         // triggering the change event for the given xpath we ensure that the
@@ -712,6 +713,25 @@ JS;
             // Do nothing because an element was already removed and therefore
             // blurring is not needed.
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function sendKeys($xpath, $value)
+    {
+        $element = $this->findElement($xpath);
+        $elementName = strtolower($element->name());
+
+        if ('input' === $elementName) {
+            $elementType = strtolower($element->attribute('type'));
+
+            if (in_array($elementType, array('submit', 'image', 'button', 'reset', 'checkbox', 'radio', 'file'))) {
+                throw new DriverException(sprintf('Impossible to send keys on element with XPath "%s" as it is not a textbox', $xpath));
+            }
+        }
+
+        $this->postElementValue($value, $elementName, $element);
     }
 
     /**
@@ -1230,5 +1250,22 @@ JS;
         }
 
         return $remotePath;
+    }
+
+    /**
+     * @param $value
+     * @param $elementName
+     * @param $element
+     */
+    private function postElementValue($value, $elementName, $element)
+    {
+        $value = strval($value);
+
+        if (in_array($elementName, array('input', 'textarea'))) {
+            $existingValueLength = strlen($element->attribute('value'));
+            $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
+        }
+
+        $element->postValue(array('value' => array($value)));
     }
 }
