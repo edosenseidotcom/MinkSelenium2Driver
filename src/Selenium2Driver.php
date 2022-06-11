@@ -1261,10 +1261,11 @@ JS;
     {
         $value = strval($value);
 
-        if (in_array($elementName, array('input', 'textarea'))) {
-            $existingValueLength = strlen($element->attribute('value'));
-            $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
-        }
+        // Edo: We do not want to overwrite the existing values.
+        // if (in_array($elementName, array('input', 'textarea'))) {
+        //     $existingValueLength = strlen($element->attribute('value'));
+        //     $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
+        // }
 
         $element->postValue(array('value' => array($value)));
     }
