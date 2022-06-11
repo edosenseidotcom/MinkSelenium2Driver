@@ -682,15 +682,12 @@ JS;
             }
         }
 
-        # $value = strval($value);
+        if (in_array($elementName, array('input', 'textarea'))) {
+            $existingValueLength = strlen($element->attribute('value'));
+            $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . strval($value);
+        }
 
-        # if (in_array($elementName, array('input', 'textarea'))) {
-        #     $existingValueLength = strlen($element->attribute('value'));
-        #     $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
-        # }
-
-        # $element->postValue(array('value' => array($value)));
-        $this->postElementValue($value, $elementName, $element);
+        $this->postElementValue($value, $element);
         // Remove the focus from the element if the field still has focus in
         // order to trigger the change event. By doing this instead of simply
         // triggering the change event for the given xpath we ensure that the
@@ -731,7 +728,7 @@ JS;
             }
         }
 
-        $this->postElementValue($value, $elementName, $element);
+        $this->postElementValue($value, $element);
     }
 
     /**
@@ -1253,20 +1250,11 @@ JS;
     }
 
     /**
-     * @param $value
-     * @param $elementName
-     * @param $element
+     * @param string $value the value of the element
+     * @param Element $element the webdriver element
      */
-    private function postElementValue($value, $elementName, $element)
+    private function postElementValue($value, $element)
     {
-        $value = strval($value);
-
-        // Edo: We do not want to overwrite the existing values.
-        // if (in_array($elementName, array('input', 'textarea'))) {
-        //     $existingValueLength = strlen($element->attribute('value'));
-        //     $value = str_repeat(Key::BACKSPACE . Key::DELETE, $existingValueLength) . $value;
-        // }
-
         $element->postValue(array('value' => array($value)));
     }
 }
